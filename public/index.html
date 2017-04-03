@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="style.css" >
     <script src="socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="client.js"></script>
     <script src="jscolor.js"></script>
   </head>
@@ -12,6 +13,12 @@
   <body>
     <canvas id="drawing"></canvas>
     <input class="jscolor" id="color_picker"/>
+    <div>
+      <ul id="messages"></ul>
+      <form action="">
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
   </body>
 
 </html>

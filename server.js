@@ -10,16 +10,27 @@ app.use(express.static(__dirname + '/public'));
 console.log("Server running on 127.0.0.1:8080");
 
 //tracking all lines of a draw
-var line_history = [][];
+var line_history = [];
 
-var color = null;
+
 io.on('connection', function (socket) {
+
+  console.log("user connected");
+
   for(var i in line_history) {
-    socket.emit('draw_line', { line: line_history[i], color_picked: line_history[i][1] });
+    socket.emit('draw_line', { line: line_history[i] });
   };
-  socket.on('draw_line', function(data, c) {
-    line_history.push(data.line, c);
-    color = c;
-    io.emit('draw_line', { line: data.line, color_picked: c });
+
+  socket.on('draw_line', function(data) {
+    line_history.push(data.line);
+    io.emit('draw_line', { line: data.line});
+  });
+
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+
+  socket.on('chat message', function(msg){
+    io.emit('chat message', msg);
   });
 });
