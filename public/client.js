@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
    var context = canvas.getContext('2d');
    //var width   = window.innerWidth;
    //var height  = window.innerHeight;
-   var width = 650;
+   var width = 950;
    var height = 400;
    //var socket  = io.connect();
 

@@ -9,9 +9,9 @@ body, html{
 }
 
 #drawing {
-  width: 650px;
+  width: 950px;
   height: 400px;
-  border: 1px solid blue;
+  border: 1px solid black;
 }
 
 #color-picker {

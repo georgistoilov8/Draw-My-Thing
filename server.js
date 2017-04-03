@@ -15,7 +15,13 @@ var line_history = [];
 
 io.on('connection', function (socket) {
 
-  console.log("user connected");
+  var username;
+  var uniqueID = Math.floor(Math.random() * 90000000) + 10000000;
+  username = 'guest'+uniqueID.toString();
+
+  console.log(username + ' has connected to the server');
+
+  io.emit('chat message', username + ' has joined.')
 
   for(var i in line_history) {
     socket.emit('draw_line', { line: line_history[i] });
@@ -27,10 +33,11 @@ io.on('connection', function (socket) {
   });
 
   socket.on('disconnect', function(){
-    console.log('user disconnected');
+    console.log(username + ' has disconnected.');
+    io.emit('chat message', username + ' has left.')
   });
 
   socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
+    io.emit('chat message', username + ": " + msg);
   });
 });
