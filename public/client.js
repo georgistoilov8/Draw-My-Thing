@@ -36,11 +36,12 @@ document.addEventListener("DOMContentLoaded", function() {
    // draw line received from server
 	socket.on('draw_line', function (data) {
       var line = data.line;
+      var c = data.color;
       context.beginPath();
       context.moveTo(line[0].x * width, line[0].y * height);
       context.lineTo(line[1].x * width, line[1].y * height);
-      color = document.getElementById('color_picker').value;
-      context.strokeStyle = '#'+color;
+      //color = document.getElementById('color_picker').value;
+      context.strokeStyle = '#' + c.toString();
       context.lineWidth = 15;
       context.stroke();
    });
@@ -49,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function() {
    function mainLoop() {
       // check if the user is drawing
       if (mouse.click && mouse.move && mouse.pos_prev) {
-         // send line to to the server
-         socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ]});
+        var c = document.getElementById('color_picker').value;
+         socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ], color: c});
          mouse.move = false;
       }
       mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
@@ -63,8 +64,11 @@ document.addEventListener("DOMContentLoaded", function() {
 $(function () {
 
   $('form').submit(function(){
-    socket.emit('chat message', $('#m').val());
-    $('#m').val('');
+    if($('#m').val() != ''){
+      socket.emit('chat message', $('#m').val());
+      $('#m').val('');
+      $('#messages').animate({scrollTop: $('#messages').prop("scrollHeight")}, 200);
+    }
     return false;
   });
 
@@ -72,4 +76,6 @@ $(function () {
     $('#messages').append($('<li>').text(msg));
     window.scrollTo(0, document.body.scrollHeight);
   });
+
+
 });
