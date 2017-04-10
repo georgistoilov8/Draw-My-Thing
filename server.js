@@ -2,7 +2,6 @@ var express = require('express'),
     app = express();
     http = require('http'),
     socketIo = require('socket.io');
-
 var server = http.createServer(app);
 var io = socketIo.listen(server);
 server.listen(8080);
