@@ -68,10 +68,10 @@ $( document ).ready(function()
       console.log(words({exactly: 3}));
       for(var i in w)
       {
-        var btn = document.createElement("BUTTON");   
+        var btn = document.createElement("BUTTON");
         btn.innerHTML = w[i];
         btn.onclick = function(){ console.log("zdr " + w[i]);}
-        div.append(btn);
+        div.appendChild(btn);
       }
 });
 
