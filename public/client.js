@@ -46,16 +46,25 @@ document.addEventListener("DOMContentLoaded", function() {
       context.stroke();
    });
 
+   var user_can_draw = false;
+
+   socket.on('start_drawing', function(can_this_user_draw){
+     user_can_draw = can_this_user_draw;
+     console.log(user_can_draw);
+   });
+
    // main loop, running every 25ms
    function mainLoop() {
-      // check if the user is drawing
-      if (mouse.click && mouse.move && mouse.pos_prev) {
-        var c = document.getElementById('color_picker').value;
-         socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ], color: c});
-         mouse.move = false;
-      }
-      mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
-      setTimeout(mainLoop, 25);
+     if(user_can_draw){
+        // check if the user is drawing
+        if (mouse.click && mouse.move && mouse.pos_prev) {
+          var c = document.getElementById('color_picker').value;
+           socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ], color: c});
+           mouse.move = false;
+        }
+        mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
+     }
+     setTimeout(mainLoop, 25);
    }
 
    mainLoop();
@@ -93,6 +102,48 @@ $(function () {
 
 
 });
+
+function addUsername(){
+  console.log("JUST DO IT");
+  var username = document.getElementById("username").value;
+  socket.emit('username', username);
+}
+
+function words(options) {
+  function word() {
+    return wordList[randInt(wordList.length)];
+  }
+
+  function randInt(lessThan) {
+    return Math.floor(Math.random() * lessThan);
+  }
+
+  // No arguments = generate one word
+  if (typeof(options) === 'undefined') {
+    return word();
+  }
+
+  // Just a number = return that many words
+  if (typeof(options) === 'number') {
+    options = { exactly: options };
+  }
+
+  // options supported: exactly, min, max, join
+
+  if (options.exactly) {
+    options.min = options.exactly;
+    options.max = options.exactly;
+  }
+  var total = options.min + randInt(options.max + 1 - options.min);
+  var results = [];
+  for (var i = 0; (i < total); i++) {
+    results.push(word());
+  }
+  if (options.join) {
+    results = results.join(options.join);
+  }
+  return results;
+}
 
 var wordList = [
   // Borrowed from xkcd password generator which borrowed it from wherever
@@ -341,39 +392,3 @@ var wordList = [
   "year","yellow","yes","yesterday","yet","you","young","younger",
   "your","yourself","youth","zero","zoo"
 ];
-
-function words(options) {
-  function word() {
-    return wordList[randInt(wordList.length)];
-  }
-
-  function randInt(lessThan) {
-    return Math.floor(Math.random() * lessThan);
-  }
-
-  // No arguments = generate one word
-  if (typeof(options) === 'undefined') {
-    return word();
-  }
-
-  // Just a number = return that many words
-  if (typeof(options) === 'number') {
-    options = { exactly: options };
-  }
-
-  // options supported: exactly, min, max, join
-
-  if (options.exactly) {
-    options.min = options.exactly;
-    options.max = options.exactly;
-  }
-  var total = options.min + randInt(options.max + 1 - options.min);
-  var results = [];
-  for (var i = 0; (i < total); i++) {
-    results.push(word());
-  }
-  if (options.join) {
-    results = results.join(options.join);
-  }
-  return results;
-}
