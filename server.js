@@ -19,6 +19,7 @@ io.on('connection', function (socket) {
 
   var username;
   var count_changes = 0;
+  var winning_word;
   //var uniqueID = Math.floor(Math.random() * 90000000) + 10000000;
   //username = 'guest'+uniqueID.toString();
   //users.push(username);
@@ -28,27 +29,38 @@ io.on('connection', function (socket) {
 
   for(var i in line_history) {
     console.log(colors[i]);
-    socket.emit('draw_line', { line: line_history[i], color: colors[i] });
+    io.emit('draw_line', { line: line_history[i], color: colors[i] });
   };
 
   socket.on('username', function(user){
     var username_previous = username;
     username = user;
-    users.push(username);
-    draw.push(true);
-    clients.push(socket);
-    count_changes += 1;
+
     if(count_changes > 1)
       io.emit('chat message', username_previous + ' has chainged his name to ' + username);
-    else
+      var index = users.indexOf(username_previous);
+      if (index !== -1) {
+        users[index] = username;
+      }
+    else{
+      users.push(username);
+      draw.push(true);
+      clients.push(socket);
       io.emit('chat message', username + ' has joined.');
+    }
+    count_changes += 1;
     io.emit('username', username);
+    io.emit('get_users', users);
   });
 
   socket.on('draw_line', function(data) {
     line_history.push(data.line);
     colors.push(data.color);
     io.emit('draw_line', { line: data.line, color: data.color});
+  });
+
+  socket.on('save_word', function(data) {
+    winning_word = data;
   });
 
   socket.on('disconnect', function(){
@@ -64,13 +76,15 @@ io.on('connection', function (socket) {
 
   socket.on('chat message', function(msg){
     io.emit('chat message', username + ": " + msg);
+    if(msg == winning_word){
+      console.log("YES bE");
+    }
   });
 });
 
 var previous_number;
-var count_number = 0;
 function GameTimer(user){
-  console.log("OOO DON't DO IT");
+  var count_number = 0;
   if(users.length > 0){
     var number;
     do{
@@ -79,17 +93,21 @@ function GameTimer(user){
     console.log(users[number] + ' is drawing now');
     draw[number] = false;
     clients[number].emit("start_drawing", true);
-    count_number += 1;
+    for(var i = 0; i < users.length; i++){
+        count_number++;
+    }
     if(count_number > 1){
+      console.log(count_number);
       clients[previous_number].emit("start_drawing", false);
     }
     if(CheckAllPlayers()){
-      console.log("All players have drown.")
+      console.log("All players have drawn.")
       for(var i = 0; i < users.length; i++){
         draw[i] = true;
       }
     }
     previous_number = number;
+    io.emit('send_timer', 5000);
   }
 }
 

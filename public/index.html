@@ -6,16 +6,24 @@
     <link rel="stylesheet" type="text/css" href="style.css" >
     <script src="socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="TimeCircles.js"></script>
+    <link href="TimeCircles.css" rel="stylesheet">
     <script src="client.js"></script>
     <script src="jscolor.js"></script>
   </head>
 
   <body>
     <canvas id="drawing"></canvas>
+    <table id="myTable">
+    </table>
+    <p id="text1"> <strong>Username:<strong></p>
+    <p id="text2"><strong>Pick Color:<strong></p>
     <input class="jscolor" id="color_picker" />
     <input class="username" id="username">
       <button id="submit_username" onclick="addUsername()"> DO IT </button>
     </input>
+    <div class="timer" data-timer="90"></div>
+
     <div id="word-options">
     </div>
     <div>

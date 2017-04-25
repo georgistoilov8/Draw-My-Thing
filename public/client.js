@@ -1,6 +1,7 @@
 var socket = io();
 
 document.addEventListener("DOMContentLoaded", function() {
+
    var mouse = {
       click: false,
       move: false,
@@ -17,6 +18,8 @@ document.addEventListener("DOMContentLoaded", function() {
    //var socket  = io.connect();
 
    var color;
+
+   var isGeneratedWords = false;
 
    // set canvas to full browser width/height
    canvas.width = width;
@@ -46,6 +49,17 @@ document.addEventListener("DOMContentLoaded", function() {
       context.stroke();
    });
 
+   socket.on('get_users', function(users){
+     CreateTable(users);
+     for(var i = 0; i < users.length; i++){
+       console.log(users[i]);
+     }
+   });
+
+   socket.on('send_timer', function(time){
+     Timer(time);
+   });
+
    var user_can_draw = false;
 
    socket.on('start_drawing', function(can_this_user_draw){
@@ -56,6 +70,10 @@ document.addEventListener("DOMContentLoaded", function() {
    // main loop, running every 25ms
    function mainLoop() {
      if(user_can_draw){
+       if(!isGeneratedWords){
+         WordButtons();
+         isGeneratedWords = true;
+       }
         // check if the user is drawing
         if (mouse.click && mouse.move && mouse.pos_prev) {
           var c = document.getElementById('color_picker').value;
@@ -70,19 +88,48 @@ document.addEventListener("DOMContentLoaded", function() {
    mainLoop();
 });
 
-$( document ).ready(function()
-{
-      var div = document.getElementById("word-options");
-      var w = words({ exactly: 3 });
-      console.log(words({exactly: 3}));
-      for(var i in w)
-      {
-        var btn = document.createElement("BUTTON");
-        btn.innerHTML = w[i];
-        btn.onclick = function(){ console.log("zdr " + w[i]);}
-        div.appendChild(btn);
-      }
-});
+function WordButtons(){
+  var div = document.getElementById("word-options");
+  $('#word-options').empty();
+  var w = words({ exactly: 3 });
+  console.log(words({exactly: 3}));
+  for(var i in w)
+  {
+    var btn = document.createElement("BUTTON");
+    btn.innerHTML = w[i];
+    btn.value = w[i];
+    btn.id = w[i];
+    btn.addEventListener('click', showWord);
+    div.appendChild(btn);
+  }
+}
+
+function CreateTable(users) {
+    $("#myTable th").remove();
+    $("#myTable tbody").remove();
+    $("#myTable tr").remove();
+    var table = document.getElementById("myTable");
+    var username = document.createElement('th');
+    var point = document.createElement('th');
+    console.log(users);
+    username.innerHTML = "Username";
+    point.innerHTML = "Point";
+    table.appendChild(username);
+    table.appendChild(point);
+    for(var i = 0; i < users.length; i++){
+      var row = table.insertRow(i);
+      var cell = row.insertCell(0);
+      cell.innerHTML = users[i];
+    }
+
+    //var cell2 = row.insertCell(1)
+    //cell2.innerHTML = "NEW CELL2";
+}
+
+function showWord(event){
+  console.log(event.target.value);
+  socket.emit('save_word', {word : event.target.value});
+}
 
 $(function () {
 
@@ -102,6 +149,40 @@ $(function () {
 
 
 });
+
+function Timer(time){
+
+  var counter = time / 1000;
+  
+  $(".timer").TimeCircles({
+    "animation": "smooth",
+    "bg_width": 1.2,
+    "fg_width": 0.1,
+    "circle_bg_color": "#60686F",
+    "time": {
+        "Days": {
+            "text": "Days",
+            "color": "#FFCC66",
+            "show": false
+        },
+        "Hours": {
+            "text": "Hours",
+            "color": "#99CCFF",
+            "show": false
+        },
+        "Minutes": {
+            "text": "Minutes",
+            "color": "#BBFFBB",
+            "show": true
+        },
+        "Seconds": {
+            "text": "Seconds",
+            "color": "#FF9999",
+            "show": true
+        }
+    }
+  });
+}
 
 function addUsername(){
   console.log("JUST DO IT");
