@@ -15,11 +15,13 @@ var users = [];
 var draw = [];    // Array of booleans for the users. We will use them to check if user should draw.
 var clients = [];
 
+var isCalled = false;
+var winning_word;
 io.on('connection', function (socket) {
 
   var username;
   var count_changes = 0;
-  var winning_word;
+
   //var uniqueID = Math.floor(Math.random() * 90000000) + 10000000;
   //username = 'guest'+uniqueID.toString();
   //users.push(username);
@@ -48,9 +50,13 @@ io.on('connection', function (socket) {
       clients.push(socket);
       io.emit('chat message', username + ' has joined.');
     }
-    count_changes += 1;
     io.emit('username', username);
     io.emit('get_users', users);
+    if(count_changes == 0 && isCalled == false){
+        GameTimer(user[0]);
+        isCalled = true;
+    }
+    count_changes += 1;
   });
 
   socket.on('draw_line', function(data) {
@@ -59,8 +65,10 @@ io.on('connection', function (socket) {
     io.emit('draw_line', { line: data.line, color: data.color});
   });
 
-  socket.on('save_word', function(data) {
-    winning_word = data;
+  socket.on('answer', function(data) {
+    winning_word = data.word;
+    console.log(winning_word);
+    console.log(data.word + "  fuasiosadjoiwqjd");
   });
 
   socket.on('disconnect', function(){
@@ -75,9 +83,12 @@ io.on('connection', function (socket) {
   });
 
   socket.on('chat message', function(msg){
-    io.emit('chat message', username + ": " + msg);
-    if(msg == winning_word){
-      console.log("YES bE");
+    console.log(winning_word);
+    console.log(msg.toString());
+    if(msg.toString().trim() === winning_word){
+      io.emit('chat message', username + " guessed the word");
+    }else{
+      io.emit('chat message', username + ": " + msg);
     }
   });
 });
@@ -91,6 +102,8 @@ function GameTimer(user){
       number = randomInt(0, users.length);
     }while(draw[number] != true);
     console.log(users[number] + ' is drawing now');
+    io.emit('send_who_is_drawing', users[number]);
+    io.emit('reset_buttons');
     draw[number] = false;
     clients[number].emit("start_drawing", true);
     for(var i = 0; i < users.length; i++){
@@ -108,6 +121,7 @@ function GameTimer(user){
     }
     previous_number = number;
     io.emit('send_timer', 5000);
+    setInterval(GameTimer, 90000);
   }
 }
 
@@ -127,4 +141,12 @@ function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
 
-setInterval(GameTimer, 5000);
+function IsUsersEmpty(){
+  var isEmpty = true;
+  for(var i = 0; i < users.length; i++){
+    if(users[i] != null){
+      isEmpty = false;
+    }
+  }
+  return isEmpty;
+}

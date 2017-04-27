@@ -57,23 +57,32 @@ document.addEventListener("DOMContentLoaded", function() {
    });
 
    socket.on('send_timer', function(time){
-     Timer(time);
+     StartTimer(time);
+     console.log("send_timer");
+     setInterval(ResetTimer, 90000);
+   });
+
+   socket.on('send_who_is_drawing', function(painter){
+     document.getElementById("who_is_drawing").innerHTML = painter.toString() + " is drawing now.";
    });
 
    var user_can_draw = false;
 
    socket.on('start_drawing', function(can_this_user_draw){
+     WordButtons();
      user_can_draw = can_this_user_draw;
-     console.log(user_can_draw);
+   });
+
+   socket.on('reset_buttons', function(){
+     $('.wordButton').remove();
+     var div = document.getElementById("text3");
+     div.innerHTML = null;
    });
 
    // main loop, running every 25ms
    function mainLoop() {
      if(user_can_draw){
-       if(!isGeneratedWords){
-         WordButtons();
-         isGeneratedWords = true;
-       }
+
         // check if the user is drawing
         if (mouse.click && mouse.move && mouse.pos_prev) {
           var c = document.getElementById('color_picker').value;
@@ -99,6 +108,7 @@ function WordButtons(){
     btn.innerHTML = w[i];
     btn.value = w[i];
     btn.id = w[i];
+    btn.className = "wordButton";
     btn.addEventListener('click', showWord);
     div.appendChild(btn);
   }
@@ -119,6 +129,7 @@ function CreateTable(users) {
     for(var i = 0; i < users.length; i++){
       var row = table.insertRow(i);
       var cell = row.insertCell(0);
+      var cell2 = row.insertCell(1);
       cell.innerHTML = users[i];
     }
 
@@ -128,7 +139,10 @@ function CreateTable(users) {
 
 function showWord(event){
   console.log(event.target.value);
-  socket.emit('save_word', {word : event.target.value});
+  $('.wordButton').remove();
+  var div = document.getElementById("text3");
+  div.innerHTML = "The word you want to draw is: " + event.target.value;
+  socket.emit('answer', {word : event.target.value});
 }
 
 $(function () {
@@ -150,10 +164,7 @@ $(function () {
 
 });
 
-function Timer(time){
-
-  var counter = time / 1000;
-  
+function StartTimer(time){
   $(".timer").TimeCircles({
     "animation": "smooth",
     "bg_width": 1.2,
@@ -181,7 +192,17 @@ function Timer(time){
             "show": true
         }
     }
-  });
+  }).start();
+}
+
+function StopTimer(){
+  $(".timer").TimeCircles().stop();
+  $("#timer").attr("data-timer", 90);
+}
+
+function ResetTimer(){
+  console.log("YES bEEEE");
+  $(".timer").TimeCircles().restart();
 }
 
 function addUsername(){
