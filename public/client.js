@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
    var color;
 
+   var username;
+   var painterName;
    var isGeneratedWords = false;
 
    // set canvas to full browser width/height
@@ -64,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
    socket.on('send_who_is_drawing', function(painter){
      document.getElementById("who_is_drawing").innerHTML = painter.toString() + " is drawing now.";
+     painterName = painter.toString();
    });
 
    var user_can_draw = false;
@@ -77,6 +80,22 @@ document.addEventListener("DOMContentLoaded", function() {
      $('.wordButton').remove();
      var div = document.getElementById("text3");
      div.innerHTML = null;
+   });
+
+   socket.on('guess_score', function(winner)
+   {
+   		var winnerRow = $("td").filter(function() {
+    		return $(this).text() == winner.toString();
+		}).closest("tr");
+		var painterRow = $("td").filter(function() {
+    		return $(this).text() == painterName;
+		}).closest("tr");
+
+		var winScore = parseInt(winnerRow.find("td:nth-child(2)").text()) + 15;
+		var paintScore = parseInt(painterRow.find("td:nth-child(2)").text()) + 10;
+   		
+   		winnerRow.find("td:nth-child(2)").text(winScore.toString());
+   		painterRow.find("td:nth-child(2)").text(paintScore.toString());
    });
 
    // main loop, running every 25ms
@@ -131,6 +150,7 @@ function CreateTable(users) {
       var cell = row.insertCell(0);
       var cell2 = row.insertCell(1);
       cell.innerHTML = users[i];
+      cell2.innerHTML = 0;
     }
 
     //var cell2 = row.insertCell(1)
@@ -207,7 +227,7 @@ function ResetTimer(){
 
 function addUsername(){
   console.log("JUST DO IT");
-  var username = document.getElementById("username").value;
+  username = document.getElementById("username").value;
   socket.emit('username', username);
 }
 

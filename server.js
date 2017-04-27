@@ -88,6 +88,7 @@ io.on('connection', function (socket) {
     console.log(msg.toString());
     if(msg.toString().trim() === winning_word){
       io.emit('chat message', username + " guessed the word");
+      io.emit('guess_score', username);
     }else{
       io.emit('chat message', username + ": " + msg);
     }
