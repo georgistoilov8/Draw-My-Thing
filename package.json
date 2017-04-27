@@ -1,9 +1,10 @@
 {
-  "name" : "DrawIP",
-  "description" : "Draw my thing project for Internet Programming",
-  "author" : "Georgi Stoilov",
-  "dependencies" : {
-    "express" : "4.x",
-    "socket.io" : "*"
+  "name": "DrawIP",
+  "description": "Draw my thing project for Internet Programming",
+  "author": "Georgi Stoilov",
+  "dependencies": {
+    "express": "4.x",
+    "material-components-web": "^0.9.1",
+    "socket.io": "*"
   }
 }

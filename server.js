@@ -6,6 +6,7 @@ var server = http.createServer(app);
 var io = socketIo.listen(server);
 server.listen(8080);
 app.use(express.static(__dirname + '/public'));
+app.use('/node_modules', express.static(__dirname + '/node_modules'));
 console.log("Server running on 127.0.0.1:8080");
 
 //tracking all lines of a draw
