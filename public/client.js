@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
    socket.on('guess_score', function(winner)
    {
    		var winnerRow = $("td").filter(function() {
-    		return $(this).text() == username;
+    		return $(this).text() == winner.toString();
 		}).closest("tr");
 		var painterRow = $("td").filter(function() {
     		return $(this).text() == painterName;
