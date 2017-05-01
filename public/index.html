@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html class="mdc-typography">
+<html>
   <head>
     <title>DrawIP</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="style.css" >
     <script src="socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <link rel="stylesheet" href="../node_modules/material-components-web/dist/material-components-web.css">
     <script type="text/javascript" src="TimeCircles.js"></script>
     <link href="TimeCircles.css" rel="stylesheet">
     <script src="client.js"></script>
@@ -17,24 +16,22 @@
     <canvas id="drawing"></canvas>
     <table id="myTable">
     </table>
-    <p class="mdc-elevation--z18" id="text1"> <strong>Username:<strong></p>
-    <p class="mdc-elevation--z18" id="text2"><strong>Pick Color:<strong></p>
-    <input class="mdc-textfield jscolor" id="color_picker" />
-    <input class="mdc-textfield username" id="username">
-      <button class="mdc-button mdc-button--raised mdc-button--primary mdc-button--accent" data-mdc-auto-init="MDCRipple" id="submit_username" onclick="addUsername()"> DO IT </button>
+    <p id="text1"> <strong>Username:<strong></p>
+    <p id="text2"><strong>Pick Color:<strong></p>
+    <input class="jscolor" id="color_picker" />
+    <input class="username" id="username">
+      <button id="submit_username" onclick="addUsername()"> DO IT </button>
     </input>
-    <div class="timer mdc-elevation--z5" id="timer" data-timer="90"></div>
-    <p class="mdc-elevation--z2" id="who_is_drawing"></p>
+    <div class="timer" id="timer" data-timer="90"></div>
+    <p id="who_is_drawing"></p>
     <div id="text3"></div>
     <div id="word-options"></div>
     <div>
       <ul id="messages"></ul>
       <form action="">
-        <input id="m" autocomplete="off" /><button class="mdc-button mdc-button--raised mdc-button--primary" data-mdc-auto-init="MDCRipple" id="sendMessage">Send</button>
+        <input id="m" autocomplete="off" /><button id="sendMessage">Send</button>
       </form>
     </div>
-    <script src="../node_modules/material-components-web/dist/material-components-web.js"></script>
-    <script>mdc.autoInit()</script>
   </body>
 
 </html>

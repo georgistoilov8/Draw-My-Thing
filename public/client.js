@@ -1,6 +1,7 @@
 var socket = io();
-
+var isResetAvailable = true;
 document.addEventListener("DOMContentLoaded", function() {
+  var isResetAv = true;
 
    var mouse = {
       click: false,
@@ -59,9 +60,20 @@ document.addEventListener("DOMContentLoaded", function() {
    });
 
    socket.on('send_timer', function(time){
-     StartTimer(time);
+     StartTimer();
      console.log("send_timer");
-     setInterval(ResetTimer, 90000);
+     if(isResetAvailable){
+       setInterval(ResetTimer, 90000);
+       isResetAvailable = false;
+     }
+   });
+
+   socket.on('show_timer', function(time){
+     ShowTimer(time);
+     if(isResetAv){
+       setTimeout(ResetTimer, time*1000);
+       isResetAv = false;
+     }
    });
 
    socket.on('send_who_is_drawing', function(painter){
@@ -73,7 +85,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
    socket.on('start_drawing', function(can_this_user_draw){
      WordButtons();
+     console.log("start_drawing")
+     document.getElementById("m").disabled = true;
      user_can_draw = can_this_user_draw;
+   });
+
+   socket.on('stop_drawing', function(stop_drawing){
+     document.getElementById("m").disabled = false;
+     user_can_draw = stop_drawing;
    });
 
    socket.on('reset_buttons', function(){
@@ -93,9 +112,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
 		var winScore = parseInt(winnerRow.find("td:nth-child(2)").text()) + 15;
 		var paintScore = parseInt(painterRow.find("td:nth-child(2)").text()) + 10;
-   		
-   		winnerRow.find("td:nth-child(2)").text(winScore.toString());
-   		painterRow.find("td:nth-child(2)").text(paintScore.toString());
+
+ 		winnerRow.find("td:nth-child(2)").text(winScore.toString());
+ 		painterRow.find("td:nth-child(2)").text(paintScore.toString());
    });
 
    // main loop, running every 25ms
@@ -184,7 +203,9 @@ $(function () {
 
 });
 
-function StartTimer(time){
+function StartTimer(){
+  console.log("start_timer");
+  document.getElementsByClassName("timer")[0].setAttribute("data-timer", 90);
   $(".timer").TimeCircles({
     "animation": "smooth",
     "bg_width": 1.2,
@@ -215,14 +236,48 @@ function StartTimer(time){
   }).start();
 }
 
+function ShowTimer(time){
+  console.log("show_timer");
+  document.getElementsByClassName("timer")[0].setAttribute("data-timer", time);
+  $(".timer").TimeCircles({
+    "animation": "smooth",
+    "bg_width": 1.2,
+    "fg_width": 0.1,
+    "circle_bg_color": "#60686F",
+    "time": {
+        "Days": {
+            "text": "Days",
+            "color": "#FFCC66",
+            "show": false
+        },
+        "Hours": {
+            "text": "Hours",
+            "color": "#99CCFF",
+            "show": false
+        },
+        "Minutes": {
+            "text": "Minutes",
+            "color": "#BBFFBB",
+            "show": true
+        },
+        "Seconds": {
+            "text": "Seconds",
+            "color": "#FF9999",
+            "show": true
+        }
+    }
+  });
+}
+
 function StopTimer(){
   $(".timer").TimeCircles().stop();
-  $("#timer").attr("data-timer", 90);
+  //$("#timer").attr("data-timer", 90);
 }
 
 function ResetTimer(){
   console.log("YES bEEEE");
   $(".timer").TimeCircles().restart();
+  document.getElementsByClassName("timer")[0].setAttribute("data-timer", 90000);
 }
 
 function addUsername(){

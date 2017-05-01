@@ -6,7 +6,6 @@ var server = http.createServer(app);
 var io = socketIo.listen(server);
 server.listen(8080);
 app.use(express.static(__dirname + '/public'));
-app.use('/node_modules', express.static(__dirname + '/node_modules'));
 console.log("Server running on 127.0.0.1:8080");
 
 //tracking all lines of a draw
@@ -17,7 +16,9 @@ var draw = [];    // Array of booleans for the users. We will use them to check 
 var clients = [];
 
 var isCalled = false;
+var is_Game_Start = false;
 var winning_word;
+var time = 89;
 io.on('connection', function (socket) {
 
   var username;
@@ -39,6 +40,11 @@ io.on('connection', function (socket) {
     var username_previous = username;
     username = user;
 
+    if(is_Game_Start){
+      console.log("DEBA WE");
+      io.emit("show_timer", time);
+    }
+
     if(count_changes > 1)
       io.emit('chat message', username_previous + ' has chainged his name to ' + username);
       var index = users.indexOf(username_previous);
@@ -54,8 +60,12 @@ io.on('connection', function (socket) {
     io.emit('username', username);
     io.emit('get_users', users);
     if(count_changes == 0 && isCalled == false){
+        console.log("Ne se vikai we");
+        io.emit('send_timer');
         GameTimer(user[0]);
         isCalled = true;
+        setInterval(CountTime, 1000);
+        setInterval(GameTimer, 90000);
     }
     count_changes += 1;
   });
@@ -69,18 +79,21 @@ io.on('connection', function (socket) {
   socket.on('answer', function(data) {
     winning_word = data.word;
     console.log(winning_word);
-    console.log(data.word + "  fuasiosadjoiwqjd");
   });
 
   socket.on('disconnect', function(){
     console.log(username + ' has disconnected.');
     io.emit('chat message', username + ' has left.');
     var index = users.indexOf(username);
+    if(users.length == 0){
+      is_Game_Start = false;
+    }
     if (index >= 0) {
       users.splice(index, 1);
       draw.splice(index, 1);
       clients.splice(index, 1);
     }
+    io.emit('get_users', users);
   });
 
   socket.on('chat message', function(msg){
@@ -98,6 +111,7 @@ io.on('connection', function (socket) {
 var previous_number;
 function GameTimer(user){
   var count_number = 0;
+  line_history = [];
   if(users.length > 0){
     var number;
     do{
@@ -113,7 +127,7 @@ function GameTimer(user){
     }
     if(count_number > 1){
       console.log(count_number);
-      clients[previous_number].emit("start_drawing", false);
+      clients[previous_number].emit("stop_drawing", false);
     }
     if(CheckAllPlayers()){
       console.log("All players have drawn.")
@@ -122,9 +136,22 @@ function GameTimer(user){
       }
     }
     previous_number = number;
-    io.emit('send_timer', 5000);
-    setInterval(GameTimer, 90000);
+    is_Game_Start = true;
+    //setInterval(GameTimer, 90000);
   }
+}
+
+function CountTime(){
+  time--;
+  console.log(time);
+  if(time <= 0){
+    time = 90;
+    RestartTimer();
+  }
+}
+
+function RestartTimer(){
+  io.emit('send_timer', 90000);
 }
 
 function CheckAllPlayers(){
